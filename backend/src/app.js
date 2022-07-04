@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 const router = require("./router");
 
-app.use(router);
+app.use("/api", router);
 
 // ready to export
 module.exports = app;

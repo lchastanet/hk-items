@@ -1,36 +1,50 @@
-import Counter from "@components/Counter";
-import logo from "@assets/logo.svg";
+import { useEffect, useState } from "react";
+import api from "../services/api";
+
+import AddForm from "../components/AddForm";
 
 export default function Home() {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    api
+      .get("/api/items")
+      .then((res) => {
+        setItems(res.data);
+      })
+      .catch((err) => console.error(err.message));
+  }, []);
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+
+    const { id } = e.target.dataset;
+
+    api.delete(`/api/items/${id}`).then(() => {
+      setItems([...items.filter((item) => item.id !== parseInt(id, 10))]);
+    });
+  };
+
   return (
-    <header className="App-header">
-      <img src={logo} className="App-logo" alt="logo" />
-      <p>Hello Vite + React !</p>
-
-      <Counter />
-
-      <p>
-        Edit <code>App.jsx</code> and save to test HMR updates.
-      </p>
-      <p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        {" | "}
-        <a
-          className="App-link"
-          href="https://vitejs.dev/guide/features.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Vite Docs
-        </a>
-      </p>
-    </header>
+    <>
+      <AddForm items={items} setItems={setItems} />
+      <div className="d-flex flex-wrap justify-content-center">
+        {items.map((item) => (
+          <div key={item.id} className="card m-2" style={{ width: "18rem" }}>
+            <div className="card-body">
+              <h5 className="card-title">{item.title}</h5>
+              <button
+                onClick={handleDelete}
+                type="submit"
+                data-id={item.id}
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
